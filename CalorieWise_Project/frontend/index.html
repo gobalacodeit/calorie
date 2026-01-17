@@ -1,0 +1,400 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalorieWise - Smart Calorie Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-fire-flame-curved"></i>
+                <span>CalorieWise</span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-tab="calculator">Calculator</button>
+                <button class="tab-btn" data-tab="history">History</button>
+                <button class="tab-btn" data-tab="tips">Tips</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Calculator Section -->
+            <section id="calculator" class="tab-content active">
+                <div class="calculator-card">
+                    <h1>Calculate Your Daily Calories</h1>
+                    <p class="subtitle">Get personalized calorie recommendations based on your goals</p>
+
+                    <form id="calorie-form" class="calculator-form">
+                        <!-- Personal Info -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-user"></i> Personal Information</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="age">Age</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="age" name="age" min="15" max="100" required placeholder="25">
+                                        <span class="unit">years</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <div class="gender-toggle">
+                                        <input type="radio" id="male" name="gender" value="male" checked>
+                                        <label for="male" class="gender-btn">
+                                            <i class="fas fa-mars"></i> Male
+                                        </label>
+                                        <input type="radio" id="female" name="gender" value="female">
+                                        <label for="female" class="gender-btn">
+                                            <i class="fas fa-venus"></i> Female
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="weight">Weight</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="weight" name="weight" min="30" max="300" step="0.1" required placeholder="70">
+                                        <select id="weight-unit" class="unit-select">
+                                            <option value="kg">kg</option>
+                                            <option value="lbs">lbs</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="height">Height</label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="height" name="height" min="100" max="250" required placeholder="175">
+                                        <select id="height-unit" class="unit-select">
+                                            <option value="cm">cm</option>
+                                            <option value="ft">ft/in</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Height in feet/inches (hidden by default) -->
+                            <div class="form-row height-imperial" style="display: none;">
+                                <div class="form-group">
+                                    <label for="height-ft">Feet</label>
+                                    <input type="number" id="height-ft" min="4" max="8" placeholder="5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="height-in">Inches</label>
+                                    <input type="number" id="height-in" min="0" max="11" placeholder="10">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Level -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-running"></i> Activity Level</h3>
+                            <div class="activity-cards">
+                                <label class="activity-card">
+                                    <input type="radio" name="activity" value="sedentary" checked>
+                                    <div class="card-content">
+                                        <i class="fas fa-couch"></i>
+                                        <span class="activity-name">Sedentary</span>
+                                        <span class="activity-desc">Little or no exercise</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="activity-card">
+                                    <input type="radio" name="activity" value="light">
+                                    <div class="card-content">
+                                        <i class="fas fa-walking"></i>
+                                        <span class="activity-name">Light</span>
+                                        <span class="activity-desc">Exercise 1-3 days/week</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="activity-card">
+                                    <input type="radio" name="activity" value="moderate">
+                                    <div class="card-content">
+                                        <i class="fas fa-biking"></i>
+                                        <span class="activity-name">Moderate</span>
+                                        <span class="activity-desc">Exercise 3-5 days/week</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="activity-card">
+                                    <input type="radio" name="activity" value="active">
+                                    <div class="card-content">
+                                        <i class="fas fa-dumbbell"></i>
+                                        <span class="activity-name">Active</span>
+                                        <span class="activity-desc">Exercise 6-7 days/week</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="activity-card">
+                                    <input type="radio" name="activity" value="extra_active">
+                                    <div class="card-content">
+                                        <i class="fas fa-fire"></i>
+                                        <span class="activity-name">Very Active</span>
+                                        <span class="activity-desc">Hard exercise daily</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Goal -->
+                        <div class="form-section">
+                            <h3><i class="fas fa-bullseye"></i> Your Goal</h3>
+                            <div class="goal-selector">
+                                <label class="goal-option">
+                                    <input type="radio" name="goal" value="lose_fast">
+                                    <div class="goal-content">
+                                        <i class="fas fa-angles-down"></i>
+                                        <span>Lose Fast</span>
+                                        <small>-1 kg/week</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="goal-option">
+                                    <input type="radio" name="goal" value="lose">
+                                    <div class="goal-content">
+                                        <i class="fas fa-angle-down"></i>
+                                        <span>Lose</span>
+                                        <small>-0.5 kg/week</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="goal-option">
+                                    <input type="radio" name="goal" value="maintain" checked>
+                                    <div class="goal-content">
+                                        <i class="fas fa-equals"></i>
+                                        <span>Maintain</span>
+                                        <small>Stay same</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="goal-option">
+                                    <input type="radio" name="goal" value="gain">
+                                    <div class="goal-content">
+                                        <i class="fas fa-angle-up"></i>
+                                        <span>Gain</span>
+                                        <small>+0.5 kg/week</small>
+                                    </div>
+                                </label>
+                                
+                                <label class="goal-option">
+                                    <input type="radio" name="goal" value="gain_fast">
+                                    <div class="goal-content">
+                                        <i class="fas fa-angles-up"></i>
+                                        <span>Bulk</span>
+                                        <small>+1 kg/week</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="calculate-btn">
+                            <i class="fas fa-calculator"></i>
+                            Calculate My Calories
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Section (Hidden Initially) -->
+                <div id="results" class="results-section" style="display: none;">
+                    <div class="results-header">
+                        <h2>Your Personalized Results</h2>
+                        <button class="recalculate-btn" onclick="resetCalculator()">
+                            <i class="fas fa-redo"></i> Recalculate
+                        </button>
+                    </div>
+
+                    <div class="results-grid">
+                        <!-- Main Calorie Card -->
+                        <div class="result-card main-calories">
+                            <div class="card-icon">
+                                <i class="fas fa-fire-flame-curved"></i>
+                            </div>
+                            <div class="card-info">
+                                <span class="label">Daily Calories</span>
+                                <span class="value" id="daily-calories">0</span>
+                                <span class="unit">kcal/day</span>
+                            </div>
+                            <div class="calorie-breakdown">
+                                <div class="breakdown-item">
+                                    <span>BMR</span>
+                                    <span id="bmr-value">0</span>
+                                </div>
+                                <div class="breakdown-item">
+                                    <span>TDEE</span>
+                                    <span id="tdee-value">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Macros Card -->
+                        <div class="result-card macros-card">
+                            <h3><i class="fas fa-chart-pie"></i> Macro Breakdown</h3>
+                            <div class="macros-chart">
+                                <canvas id="macros-canvas"></canvas>
+                            </div>
+                            <div class="macros-legend">
+                                <div class="macro-item protein">
+                                    <span class="macro-color"></span>
+                                    <span class="macro-name">Protein</span>
+                                    <span class="macro-value" id="protein-grams">0g</span>
+                                    <span class="macro-percent" id="protein-percent">30%</span>
+                                </div>
+                                <div class="macro-item carbs">
+                                    <span class="macro-color"></span>
+                                    <span class="macro-name">Carbs</span>
+                                    <span class="macro-value" id="carbs-grams">0g</span>
+                                    <span class="macro-percent" id="carbs-percent">40%</span>
+                                </div>
+                                <div class="macro-item fats">
+                                    <span class="macro-color"></span>
+                                    <span class="macro-name">Fats</span>
+                                    <span class="macro-value" id="fats-grams">0g</span>
+                                    <span class="macro-percent" id="fats-percent">30%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BMI Card -->
+                        <div class="result-card bmi-card">
+                            <h3><i class="fas fa-weight-scale"></i> BMI Analysis</h3>
+                            <div class="bmi-display">
+                                <span class="bmi-value" id="bmi-value">0</span>
+                                <span class="bmi-category" id="bmi-category">Normal</span>
+                            </div>
+                            <div class="bmi-scale">
+                                <div class="scale-bar">
+                                    <div class="scale-indicator" id="bmi-indicator"></div>
+                                </div>
+                                <div class="scale-labels">
+                                    <span>Underweight</span>
+                                    <span>Normal</span>
+                                    <span>Overweight</span>
+                                    <span>Obese</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Meal Plan Card -->
+                        <div class="result-card meals-card">
+                            <h3><i class="fas fa-utensils"></i> Suggested Meal Plan</h3>
+                            <div class="meals-list">
+                                <div class="meal-item">
+                                    <i class="fas fa-sun"></i>
+                                    <div class="meal-info">
+                                        <span class="meal-name">Breakfast</span>
+                                        <span class="meal-calories" id="breakfast-cal">0 kcal</span>
+                                    </div>
+                                    <span class="meal-percent">25%</span>
+                                </div>
+                                <div class="meal-item">
+                                    <i class="fas fa-cloud-sun"></i>
+                                    <div class="meal-info">
+                                        <span class="meal-name">Lunch</span>
+                                        <span class="meal-calories" id="lunch-cal">0 kcal</span>
+                                    </div>
+                                    <span class="meal-percent">35%</span>
+                                </div>
+                                <div class="meal-item">
+                                    <i class="fas fa-moon"></i>
+                                    <div class="meal-info">
+                                        <span class="meal-name">Dinner</span>
+                                        <span class="meal-calories" id="dinner-cal">0 kcal</span>
+                                    </div>
+                                    <span class="meal-percent">30%</span>
+                                </div>
+                                <div class="meal-item">
+                                    <i class="fas fa-cookie"></i>
+                                    <div class="meal-info">
+                                        <span class="meal-name">Snacks</span>
+                                        <span class="meal-calories" id="snacks-cal">0 kcal</span>
+                                    </div>
+                                    <span class="meal-percent">10%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Projection -->
+                    <div class="weekly-projection">
+                        <h3><i class="fas fa-chart-line"></i> 12-Week Projection</h3>
+                        <canvas id="projection-chart"></canvas>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="action-btn save-btn" onclick="saveResults()">
+                            <i class="fas fa-bookmark"></i> Save Results
+                        </button>
+                        <button class="action-btn share-btn" onclick="shareResults()">
+                            <i class="fas fa-share-nodes"></i> Share
+                        </button>
+                        <button class="action-btn print-btn" onclick="printResults()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history" class="tab-content">
+                <div class="history-container">
+                    <h2><i class="fas fa-history"></i> Calculation History</h2>
+                    <div id="history-list" class="history-list">
+                        <p class="empty-state">No calculations saved yet. Complete a calculation and save it!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tips Section -->
+            <section id="tips" class="tab-content">
+                <div class="tips-container">
+                    <h2><i class="fas fa-lightbulb"></i> Nutrition Tips</h2>
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <i class="fas fa-droplet"></i>
+                            <h4>Stay Hydrated</h4>
+                            <p>Drink at least 8 glasses of water daily. Sometimes thirst is mistaken for hunger.</p>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-apple-whole"></i>
+                            <h4>Eat Whole Foods</h4>
+                            <p>Focus on vegetables, fruits, lean proteins, and whole grains for sustained energy.</p>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-clock"></i>
+                            <h4>Meal Timing</h4>
+                            <p>Eat regular meals to maintain stable blood sugar and avoid overeating.</p>
+                        </div>
+                        <div class="tip-card">
+                            <i class="fas fa-bed"></i>
+                            <h4>Quality Sleep</h4>
+                            <p>Poor sleep affects hormones that control hunger. Aim for 7-9 hours nightly.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2026 CalorieWise | For educational purposes only. Consult a healthcare professional for personalized advice.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
