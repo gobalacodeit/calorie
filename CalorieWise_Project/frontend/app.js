@@ -80,21 +80,40 @@ form.addEventListener('submit', (e) => {
 });
 
 // Main Calculation Function
-function calculateCalories() {
-    // Get form values
-    const age = parseInt(document.getElementById('age').value);
-    const gender = document.querySelector('input[name="gender"]:checked').value;
-    const weightUnit = document.getElementById('weight-unit').value;
-    const heightUnit = document.getElementById('height-unit').value;
-    const activity = document.querySelector('input[name="activity"]:checked').value;
-    const goal = document.querySelector('input[name="goal"]:checked').value;
-    
-    // Get weight in kg
-    let weight = parseFloat(document.getElementById('weight').value);
-    if (weightUnit === 'lbs') {
-        weight = weight * 0.453592;
+    async function calculateCalories() {
+    const payload = {
+        age: parseInt(document.getElementById('age').value),
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        weight: parseFloat(document.getElementById('weight').value),
+        height: parseFloat(document.getElementById('height').value),
+        activity: document.querySelector('input[name="activity"]:checked').value,
+        goal: document.querySelector('input[name="goal"]:checked').value
+    };
+
+    try {
+        const response = await fetch("https://calorie-ybhs.onrender.com/api/calculate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.error || "Calculation failed");
+            return;
+        }
+
+        displayResults(result.data);
+
+    } catch (error) {
+        alert("Backend not reachable");
+        console.error(error);
     }
-    
+}
+
     // Get height in cm
     let height;
     if (heightUnit === 'ft') {
