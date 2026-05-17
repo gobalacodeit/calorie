@@ -1,5 +1,10 @@
 // app.js
 
+// Configuration - Backend API URL (configurable via environment)
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://127.0.0.1:5000' 
+    : 'https://calorie-ybhs.onrender.com';
+
 // DOM Elements
 const form = document.getElementById('calorie-form');
 const resultsSection = document.getElementById('results');
@@ -80,18 +85,57 @@ form.addEventListener('submit', (e) => {
 });
 
 // Main Calculation Function
-    async function calculateCalories() {
-    const payload = {
-        age: parseInt(document.getElementById('age').value),
-        gender: document.querySelector('input[name="gender"]:checked').value,
-        weight: parseFloat(document.getElementById('weight').value),
-        height: parseFloat(document.getElementById('height').value),
-        activity: document.querySelector('input[name="activity"]:checked').value,
-        goal: document.querySelector('input[name="goal"]:checked').value
-    };
-
+async function calculateCalories() {
+    const submitBtn = document.querySelector('.calculate-btn');
+    const originalBtnText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+    
     try {
-        const response = await fetch("https://calorie-ybhs.onrender.com/api/calculate", {
+        // Get form values
+        const age = parseInt(document.getElementById('age').value);
+        const gender = document.querySelector('input[name="gender"]:checked').value;
+        const weight = parseFloat(document.getElementById('weight').value);
+        const activity = document.querySelector('input[name="activity"]:checked').value;
+        const goal = document.querySelector('input[name="goal"]:checked').value;
+        const weightUnit = document.getElementById('weight-unit').value;
+        const heightUnit = document.getElementById('height-unit').value;
+        
+        // Get height value based on unit
+        let height;
+        if (heightUnit === 'ft') {
+            const feet = parseInt(document.getElementById('height-ft').value) || 0;
+            const inches = parseInt(document.getElementById('height-in').value) || 0;
+            height = (feet * 12) + inches; // Send as total inches
+        } else {
+            height = parseFloat(document.getElementById('height').value);
+        }
+        
+        // Validate inputs
+        if (isNaN(age) || age < 15 || age > 100) {
+            throw new Error('Age must be between 15 and 100');
+        }
+        if (isNaN(weight) || weight < 30 || weight > 300) {
+            throw new Error('Weight must be between 30 and 300');
+        }
+        if (isNaN(height) || height < 0) {
+            throw new Error('Please enter a valid height');
+        }
+        
+        const payload = {
+            age,
+            gender,
+            weight,
+            height,
+            activity,
+            goal,
+            weight_unit: weightUnit,
+            height_unit: heightUnit
+        };
+
+        const response = await fetch(`${API_BASE_URL}/api/calculate`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -99,62 +143,28 @@ form.addEventListener('submit', (e) => {
             body: JSON.stringify(payload)
         });
 
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Calculation failed');
+        }
+
         const result = await response.json();
 
         if (!result.success) {
-            alert(result.error || "Calculation failed");
-            return;
+            throw new Error(result.error || 'Calculation failed');
         }
 
         displayResults(result.data);
+        saveToHistory(result.data);
 
     } catch (error) {
-        alert("Backend not reachable");
-        console.error(error);
+        console.error('Calculation error:', error);
+        alert(error.message || 'An error occurred. Please try again.');
+    } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
     }
-}
-
-    // Get height in cm
-    let height;
-    if (heightUnit === 'ft') {
-        const feet = parseInt(document.getElementById('height-ft').value) || 0;
-        const inches = parseInt(document.getElementById('height-in').value) || 0;
-        height = (feet * 30.48) + (inches * 2.54);
-    } else {
-        height = parseFloat(document.getElementById('height').value);
-    }
-    
-    // Calculate BMR using Mifflin-St Jeor Equation
-    let bmr;
-    if (gender === 'male') {
-        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-    } else {
-        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-    }
-    
-    // Calculate TDEE
-    const tdee = bmr * ACTIVITY_MULTIPLIERS[activity];
-    
-    // Apply goal adjustment
-    const dailyCalories = Math.round(tdee + GOAL_ADJUSTMENTS[goal]);
-    
-    // Calculate BMI
-    const heightInMeters = height / 100;
-    const bmi = weight / (heightInMeters * heightInMeters);
-    
-    // Calculate Macros (default: 30% protein, 40% carbs, 30% fat)
-    const macros = calculateMacros(dailyCalories);
-    
-    // Display results
-    displayResults({
-        bmr: Math.round(bmr),
-        tdee: Math.round(tdee),
-        dailyCalories,
-        bmi: bmi.toFixed(1),
-        macros,
-        weight,
-        goal
-    });
 }
 
 // Calculate Macronutrients
@@ -183,8 +193,9 @@ function displayResults(data) {
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // Update calorie values
-    animateNumber('daily-calories', data.dailyCalories);
+    // Update calorie values (handle both snake_case and camelCase from backend)
+    const dailyCalories = data.daily_calories || data.dailyCalories;
+    animateNumber('daily-calories', dailyCalories);
     document.getElementById('bmr-value').textContent = `${data.bmr} kcal`;
     document.getElementById('tdee-value').textContent = `${data.tdee} kcal`;
     
@@ -208,10 +219,10 @@ function displayResults(data) {
     bmiIndicator.style.left = `${bmiPosition}%`;
     
     // Update meal breakdown
-    document.getElementById('breakfast-cal').textContent = `${Math.round(data.dailyCalories * 0.25)} kcal`;
-    document.getElementById('lunch-cal').textContent = `${Math.round(data.dailyCalories * 0.35)} kcal`;
-    document.getElementById('dinner-cal').textContent = `${Math.round(data.dailyCalories * 0.30)} kcal`;
-    document.getElementById('snacks-cal').textContent = `${Math.round(data.dailyCalories * 0.10)} kcal`;
+    document.getElementById('breakfast-cal').textContent = `${Math.round(dailyCalories * 0.25)} kcal`;
+    document.getElementById('lunch-cal').textContent = `${Math.round(dailyCalories * 0.35)} kcal`;
+    document.getElementById('dinner-cal').textContent = `${Math.round(dailyCalories * 0.30)} kcal`;
+    document.getElementById('snacks-cal').textContent = `${Math.round(dailyCalories * 0.10)} kcal`;
     
     // Create charts
     createMacrosChart(data.macros);
@@ -293,15 +304,16 @@ function createProjectionChart(data) {
         projectionChart.destroy();
     }
     
-    // Calculate weekly weight projections
+    // Calculate weekly weight projections using backend data
     const weeks = 12;
-    const weeklyChange = GOAL_ADJUSTMENTS[data.goal] * 7 / 7700; // kg per week
+    const weeklyChange = data.projected_weekly_change_kg || 0;
+    const startingWeight = data.weight_kg || 70; // Default fallback
     const projectedWeights = [];
     const labels = [];
     
     for (let i = 0; i <= weeks; i++) {
         labels.push(`Week ${i}`);
-        projectedWeights.push((data.weight + (weeklyChange * i)).toFixed(1));
+        projectedWeights.push((startingWeight + (weeklyChange * i)).toFixed(1));
     }
     
     projectionChart = new Chart(ctx, {
@@ -362,7 +374,7 @@ function saveResults() {
     
     const historyItem = {
         timestamp,
-        calories: results.dailyCalories,
+        calories: results.daily_calories || results.dailyCalories,
         bmi: results.bmi,
         goal: results.goal
     };
@@ -375,6 +387,25 @@ function saveResults() {
     loadHistory();
     
     alert('Results saved successfully!');
+}
+
+// Save to History (auto-save after calculation)
+function saveToHistory(data) {
+    const timestamp = new Date().toLocaleString();
+    
+    const historyItem = {
+        timestamp,
+        calories: data.daily_calories,
+        bmi: data.bmi,
+        goal: data.goal || 'maintain'
+    };
+    
+    let history = JSON.parse(localStorage.getItem('calorieHistory')) || [];
+    history.unshift(historyItem);
+    history = history.slice(0, 20); // Keep only last 20
+    
+    localStorage.setItem('calorieHistory', JSON.stringify(history));
+    loadHistory();
 }
 
 // Load History
