@@ -57,11 +57,19 @@ class CalorieCalculator:
             return weight * 0.453592
         return weight
     
-    def convert_height(self, height: float, from_unit: str, 
-                       feet: int = 0, inches: int = 0) -> float:
-        """Convert height to cm."""
+    def convert_height(self, height: float, from_unit: str) -> float:
+        """Convert height to cm.
+        
+        Args:
+            height: Height value (in cm if from_unit='cm', or total inches if from_unit='ft')
+            from_unit: 'cm' or 'ft'
+            
+        Returns:
+            Height in centimeters
+        """
         if from_unit == 'ft':
-            return (feet * 30.48) + (inches * 2.54)
+            # Height is sent as total inches from frontend when using ft/in
+            return height * 2.54
         return height
     
     def calculate_bmr_mifflin(self, weight_kg: float, height_cm: float, 
